@@ -25,23 +25,13 @@ public class PostController {
     // post Methods
 
     @PostMapping("/posts")
-    public Map<String, String> post(@RequestBody @Valid PostCreate params, BindingResult result) {
+    public Map<String, String> post(@RequestBody @Valid PostCreate params) {
         //データを検証する理由
         // 1. クライアント開発者が誤って値を送信しなかった
         // 2. クライアントのバグで値が欠落したs
         // 3. 外部の悪意のある人物が値を任意に改ざんした
         // 4. データベースに値を保存する際に意図しないエラーが発生
         // 5. サーバー開発者の快適さのため
-        if(result.hasErrors()) {
-            List<FieldError> fieldErrors = result.getFieldErrors();
-            FieldError firstFieldEror = fieldErrors.get(0);
-            String fieldName = firstFieldEror.getField();
-            String errorMessage =  firstFieldEror.getDefaultMessage();
-
-            Map<String, String> error = new HashMap<>();
-            error.put(fieldName, errorMessage);
-            return error;
-        }
 
         return Map.of();
     }
