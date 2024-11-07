@@ -1,7 +1,9 @@
 package com.myscolog.controller;
 
 import com.myscolog.request.PostCreate;
+import com.myscolog.service.PostService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -18,21 +20,20 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class PostController {
     // Http Methods
     // GET, PUT, POST, PATCH, DELETE, OPTIONS, HEAD, TRACE, CONNECT
     // 記事の登録
     // post Methods
 
-    @PostMapping("/posts")
-    public Map<String, String> post(@RequestBody @Valid PostCreate params) {
-        //データを検証する理由
-        // 1. クライアント開発者が誤って値を送信しなかった
-        // 2. クライアントのバグで値が欠落したs
-        // 3. 外部の悪意のある人物が値を任意に改ざんした
-        // 4. データベースに値を保存する際に意図しないエラーが発生
-        // 5. サーバー開発者の快適さのため
+    private final PostService postService;
 
+
+    @PostMapping("/posts")
+    public Map<String, String> post(@RequestBody @Valid PostCreate request) {
+        // db.save(parms)
+        postService.write(request);
         return Map.of();
     }
 
