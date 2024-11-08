@@ -1,5 +1,6 @@
 package com.myscolog.controller;
 
+import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
 import com.myscolog.service.PostService;
 import jakarta.validation.Valid;
@@ -29,13 +30,25 @@ public class PostController {
 
     private final PostService postService;
 
-
     @PostMapping("/posts")
-    public Map<String, String> post(@RequestBody @Valid PostCreate request) {
-        // db.save(parms)
+    public void post(@RequestBody @Valid PostCreate request) {
+        //Case1 - 저장한 데이터 Entity -> response 로 응답
+        //Case2 - 저장한 데이터 primary_id -> response로 응답
+        //          Client에서는 수신한 id를 글 조회 api를 통해 글 데이터를 수신
+        //Case3. 응답 필요없음 -> 클라이언트에서 모든 포스트 데이터 컨텍스트를 관리
+        //Bad Case: 서버에서 -> 반드시 이렇게 할껍니다! fix
+        //           -> 서버에서는 유연하게 대응하는게 좋다.
+        //           -> 한번에 일괄적으로 잘 처리되는 케이스가 없다.
         postService.write(request);
-        return Map.of();
     }
+
+    @GetMapping("/posts/{postId}")
+    public Post get(@PathVariable(name = "postId") Long id) {
+       Post post = postService.get(id);
+
+       return post;
+    }
+
 
     @GetMapping("/posts2")
     public String post() {
