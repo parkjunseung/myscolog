@@ -3,12 +3,20 @@ package com.myscolog.service;
 import com.myscolog.Repository.PostRepository;
 import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
+import com.myscolog.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -61,13 +69,38 @@ class PostServiceTest {
         Long postId = 1L;
 
         //when
-        Post post = postService.get(postId);
+        PostResponse postResponse = postService.get(postId);
 
         //then
-        assertNotNull(post);
+        assertNotNull(postResponse);
         assertEquals(1L, postRepository.count());
-        assertEquals("foo", post.getTitle());
-        assertEquals("bar", post.getContent());
+        assertEquals("foo", postResponse.getTitle());
+        assertEquals("bar", postResponse.getContent());
     }
 
+    @Test
+    @DisplayName("글 1페이지 조회")
+    void test3() {
+        //given
+        List<Post> requestPosts = IntStream.range(1,31)
+                        .mapToObj(i -> {
+                           return Post.builder()
+                                    .title("미스코 제목 " + i)
+                                    .content("드라코미스코 " + i)
+                                    .build();
+                        })
+                .collect(Collectors.toList());
+
+        postRepository.saveAll(requestPosts);
+
+        Pageable pageable = PageRequest.of(0,5, Sort.Direction.DESC, "id");
+
+        //when
+        List<PostResponse> posts = postService.getList(pageable);
+
+        //then
+        assertEquals(5L, posts.size());
+        assertEquals("미스코 제목 30", posts.get(0).getTitle());
+        assertEquals("미스코 제목 26", posts.get(4).getTitle());
+    }
 }

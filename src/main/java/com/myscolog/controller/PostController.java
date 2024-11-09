@@ -2,10 +2,13 @@ package com.myscolog.controller;
 
 import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
+import com.myscolog.response.PostResponse;
 import com.myscolog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -42,17 +45,20 @@ public class PostController {
         postService.write(request);
     }
 
+    // 조회 API
+    // 단건 조회 API
     @GetMapping("/posts/{postId}")
-    public Post get(@PathVariable(name = "postId") Long id) {
-       Post post = postService.get(id);
-
-       return post;
+    public PostResponse get(@PathVariable Long postId) {
+        // 응답 클래스 분리 (서비스 정책에 맞게)
+       return postService.get(postId);
     }
 
+    // 조회 API
+    // 여러건 조회 API
 
-    @GetMapping("/posts2")
-    public String post() {
-
-        return "확인";
+    @GetMapping("/posts")
+    public List<PostResponse> getList(Pageable pageable) {
+        return postService.getList(pageable);
     }
+
 }
