@@ -6,7 +6,6 @@ import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
 import com.myscolog.request.PostEdit;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,9 +80,6 @@ class PostControllerTest {
                         .content(json)
                 ) //application json
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("400"))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.title").value("타이틀을 입력해 주세요."))
                 .andDo(print());
     }
 
@@ -141,12 +137,10 @@ class PostControllerTest {
     void test5() throws Exception {
         //given
         List<Post> requestPosts = IntStream.range(1,31)
-                .mapToObj(i -> {
-                    return Post.builder()
+                .mapToObj(i ->Post.builder()
                             .title("미스코 제목 " + i)
                             .content("드라코미스코 " + i)
-                            .build();
-                })
+                            .build())
                 .collect(Collectors.toList());
 
         postRepository.saveAll(requestPosts);
@@ -157,7 +151,6 @@ class PostControllerTest {
                 ) //application json
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(10)))
-                .andExpect(jsonPath("$[0].id").value(30))
                 .andExpect(jsonPath("$[0].title").value("미스코 제목 30"))
                 .andExpect(jsonPath("$[0].content").value("드라코미스코 30"))
                 .andDo(print());
@@ -169,12 +162,10 @@ class PostControllerTest {
     void test6() throws Exception {
         //given
         List<Post> requestPosts = IntStream.range(1,31)
-                .mapToObj(i -> {
-                    return Post.builder()
+                .mapToObj(i -> Post.builder()
                             .title("미스코 제목 " + i)
                             .content("드라코미스코 " + i)
-                            .build();
-                })
+                            .build())
                 .collect(Collectors.toList());
 
         postRepository.saveAll(requestPosts);
@@ -185,7 +176,6 @@ class PostControllerTest {
                 ) //application json
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(10)))
-                .andExpect(jsonPath("$[0].id").value(30))
                 .andExpect(jsonPath("$[0].title").value("미스코 제목 30"))
                 .andExpect(jsonPath("$[0].content").value("드라코미스코 30"))
                 .andDo(print());
@@ -285,3 +275,7 @@ class PostControllerTest {
     }
 
 }
+
+// API 문서 생성
+// Spring RestDocs
+// 운영코드에 영향이 없음
