@@ -3,6 +3,8 @@ package com.myscolog.service;
 import com.myscolog.Repository.PostRepository;
 import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
+import com.myscolog.request.PostEdit;
+import com.myscolog.request.PostSearch;
 import com.myscolog.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,25 +84,92 @@ class PostServiceTest {
     @DisplayName("글 1페이지 조회")
     void test3() {
         //given
-        List<Post> requestPosts = IntStream.range(1,31)
-                        .mapToObj(i -> {
-                           return Post.builder()
-                                    .title("미스코 제목 " + i)
-                                    .content("드라코미스코 " + i)
-                                    .build();
-                        })
+        List<Post> requestPosts = IntStream.range(1, 31)
+                .mapToObj(i -> {
+                    return Post.builder()
+                            .title("미스코 제목 " + i)
+                            .content("드라코미스코 " + i)
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         postRepository.saveAll(requestPosts);
 
-        Pageable pageable = PageRequest.of(0,5, Sort.Direction.DESC, "id");
+        PostSearch postSearch = PostSearch.builder()
+                .page(1)
+                .build();
 
         //when
-        List<PostResponse> posts = postService.getList(pageable);
+        List<PostResponse> posts = postService.getList(postSearch);
 
         //then
-        assertEquals(5L, posts.size());
+        assertEquals(10L, posts.size());
         assertEquals("미스코 제목 30", posts.get(0).getTitle());
         assertEquals("미스코 제목 26", posts.get(4).getTitle());
+    }
+
+    @Test
+    @DisplayName("글 제목 수정")
+    void test4() {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("드라코")
+                .content("드라코미스코")
+                .build();
+
+        //when
+        postService.edit(requestPost.getId(), postEdit);
+
+        //then
+        Post changedPost = postRepository.findById(requestPost.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재 한지 않습니다 id =" + requestPost.getId()));
+        assertEquals("드라코", changedPost.getTitle());
+    }
+
+    @Test
+    @DisplayName("글 내용 수정")
+    void test5() {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("미스코")
+                .content("플라코버드코")
+                .build();
+
+        //when
+        postService.edit(requestPost.getId(), postEdit);
+
+        //then
+        Post changedPost = postRepository.findById(requestPost.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재 한지 않습니다 id =" + requestPost.getId()));
+        assertEquals("플라코버드코", changedPost.getTitle());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void test6() {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        //when
+        postService.delete(requestPost.getId());
+
+        //then
+        assertEquals(0, postRepository.count());
     }
 }

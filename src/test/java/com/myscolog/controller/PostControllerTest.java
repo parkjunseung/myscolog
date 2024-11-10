@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myscolog.Repository.PostRepository;
 import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
+import com.myscolog.request.PostEdit;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -153,15 +154,87 @@ class PostControllerTest {
         postRepository.saveAll(requestPosts);
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=1&sort=id,desc&size=5")
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=1&size=10")
                         .contentType(MediaType.APPLICATION_JSON)
                 ) //application json
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", Matchers.is(5)))
+                .andExpect(jsonPath("$.length()", Matchers.is(10)))
                 .andExpect(jsonPath("$[0].id").value(30))
                 .andExpect(jsonPath("$[0].title").value("미스코 제목 30"))
                 .andExpect(jsonPath("$[0].content").value("드라코미스코 30"))
                 .andDo(print());
 
+    }
+
+    @Test
+    @DisplayName("페이지 0을 요청하면 첫페이지")
+    void test6() throws Exception {
+        //given
+        List<Post> requestPosts = IntStream.range(1,31)
+                .mapToObj(i -> {
+                    return Post.builder()
+                            .title("미스코 제목 " + i)
+                            .content("드라코미스코 " + i)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        postRepository.saveAll(requestPosts);
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=0&size=10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ) //application json
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", Matchers.is(10)))
+                .andExpect(jsonPath("$[0].id").value(30))
+                .andExpect(jsonPath("$[0].title").value("미스코 제목 30"))
+                .andExpect(jsonPath("$[0].content").value("드라코미스코 30"))
+                .andDo(print());
+
+    }
+
+
+    @Test
+    @DisplayName("글 제목 수정")
+    void test7() throws Exception {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("드라코")
+                .content("드라코미스코")
+                .build();
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", requestPost.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit))
+                ) //application json
+                .andExpect(status().isOk())
+                .andDo(print());
+
+    }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void test8() throws Exception {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.delete("/posts/{postId}", requestPost.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                ) //application json
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }

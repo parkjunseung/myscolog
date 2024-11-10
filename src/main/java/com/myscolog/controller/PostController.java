@@ -2,8 +2,11 @@ package com.myscolog.controller;
 
 import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
+import com.myscolog.request.PostEdit;
+import com.myscolog.request.PostSearch;
 import com.myscolog.response.PostResponse;
 import com.myscolog.service.PostService;
+import jakarta.persistence.PostUpdate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,8 +60,21 @@ public class PostController {
     // 여러건 조회 API
 
     @GetMapping("/posts")
-    public List<PostResponse> getList(Pageable pageable) {
-        return postService.getList(pageable);
+    public List<PostResponse> getList(@ModelAttribute PostSearch postSearch) {
+        return postService.getList(postSearch);
     }
+
+    // 수정 API
+    @PatchMapping("/posts/{postId}")
+    public void edit(@PathVariable Long postId, @RequestBody @Valid PostEdit request) {
+        postService.edit(postId, request);
+    }
+
+    // 삭제 API
+    @DeleteMapping("/posts/{postId}")
+    public void delete(@PathVariable Long postId) {
+        postService.delete(postId);
+    }
+
 
 }
