@@ -1,5 +1,6 @@
 package com.myscolog.request;
 
+import com.myscolog.Exception.InvaliadRequest;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +22,12 @@ public class PostCreate {
     public PostCreate(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void validate() {
+        if(title.contains("바보")) {
+            throw new InvaliadRequest("title", "제목에 바보를 포함 할 수 없습니다.");
+        }
     }
 
     // 빌더의 장점

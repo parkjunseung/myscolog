@@ -1,24 +1,16 @@
 package com.myscolog.controller;
 
-import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
 import com.myscolog.request.PostEdit;
 import com.myscolog.request.PostSearch;
 import com.myscolog.response.PostResponse;
 import com.myscolog.service.PostService;
-import jakarta.persistence.PostUpdate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 //SSR -> jsp, thymeleaf, freemarker : html rendering
 //SPA -> vue, react : javascript + < - > API
@@ -45,6 +37,7 @@ public class PostController {
         //Bad Case: 서버에서 -> 반드시 이렇게 할껍니다! fix
         //           -> 서버에서는 유연하게 대응하는게 좋다.
         //           -> 한번에 일괄적으로 잘 처리되는 케이스가 없다.
+        request.validate();
         postService.write(request);
     }
 

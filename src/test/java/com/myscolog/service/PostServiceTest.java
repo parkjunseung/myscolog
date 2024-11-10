@@ -1,5 +1,6 @@
 package com.myscolog.service;
 
+import com.myscolog.Exception.PostNotFound;
 import com.myscolog.Repository.PostRepository;
 import com.myscolog.domain.Post;
 import com.myscolog.request.PostCreate;
@@ -53,7 +54,7 @@ class PostServiceTest {
 
         Post post = postRepository.findAll().get(0);
         assertEquals("제목입니다.", post.getTitle());
-        assertEquals("컨텐츠입니다.", post.getContent());
+        assertEquals("내용입니다.", post.getContent());
     }
 
 
@@ -66,12 +67,8 @@ class PostServiceTest {
                 .content("bar")
                 .build();
         postRepository.save(requestPost);
-
-
-        Long postId = 1L;
-
         //when
-        PostResponse postResponse = postService.get(postId);
+        PostResponse postResponse = postService.get(requestPost.getId());
 
         //then
         assertNotNull(postResponse);
@@ -153,7 +150,7 @@ class PostServiceTest {
         //then
         Post changedPost = postRepository.findById(requestPost.getId())
                 .orElseThrow(() -> new RuntimeException("글이 존재 한지 않습니다 id =" + requestPost.getId()));
-        assertEquals("플라코버드코", changedPost.getTitle());
+        assertEquals("플라코버드코", changedPost.getContent());
     }
 
     @Test
@@ -171,5 +168,61 @@ class PostServiceTest {
 
         //then
         assertEquals(0, postRepository.count());
+    }
+
+    @Test
+    @DisplayName("글 1개 조회 - 존재하지 않는 글")
+    void test7() {
+        //given
+        Post post = Post.builder()
+                .title("미스코")
+                .content("드라코데빌코")
+                .build();
+        postRepository.save(post);
+
+        //when
+        Assertions.assertThrows(PostNotFound.class, () -> {
+            postService.get(post.getId() + 1L);
+        });
+
+    }
+
+
+    @Test
+    @DisplayName("게시글 삭제 - 존재하지 않는 글")
+    void test8() {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        //then
+        Assertions.assertThrows(PostNotFound.class, () -> {
+            postService.delete(requestPost.getId() + 1L);
+
+        });
+    }
+
+    @Test
+    @DisplayName("글 내용 수정 - 존재하지 않는 글")
+    void test9() {
+        //given
+        Post requestPost = Post.builder()
+                .title("미스코")
+                .content("드라코미스코")
+                .build();
+        postRepository.save(requestPost);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("미스코")
+                .content("플라코버드코")
+                .build();
+
+        //then
+        Assertions.assertThrows(PostNotFound.class, () -> {
+            postService.edit(requestPost.getId() + 1L, postEdit);
+        });
     }
 }
